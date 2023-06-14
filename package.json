@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "craco --openssl-legacy-provider start",
-    "build": "craco build",
+    "build": "craco --openssl-legacy-provider build",
     "lint": "eslint ./src",
     "test": "craco test",
     "eject": "react-scripts eject"
