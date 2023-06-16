@@ -1,4 +1,4 @@
-import { Client as Appwrite, Databases, Account } from "appwrite";
+import {Client as Appwrite, Databases, Account, Query} from "appwrite";
 import { Server } from "../utils/config";
 
 let api = {
@@ -44,10 +44,21 @@ let api = {
     return api.provider().database.listDocuments(databaseId, collectionId);
   },
 
-  updateDocument: (databaseId, collectionId, documentId, data) => {
+  listDocumentsWithContent: (databaseId, collectionId, searchTerm) => {
+    return api.provider().database.listDocuments(databaseId, collectionId, [
+      Query.search("content", searchTerm),
+    ]);
+  },
+  listDocumentsWithIds: (databaseId, collectionId, ids) => {
+    return api.provider().database.listDocuments(databaseId, collectionId, [
+        Query.equal("$id", ids),
+    ]);
+  },
+
+  updateDocument: (databaseId, collectionId, documentId, data, permissions) => {
     return api
       .provider()
-      .database.updateDocument(databaseId, collectionId, documentId, data);
+      .database.updateDocument(databaseId, collectionId, documentId, data, permissions);
   },
 
   deleteDocument: (databaseId, collectionId, documentId) => {

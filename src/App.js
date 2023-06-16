@@ -3,6 +3,8 @@ import Todo from "./pages/Todo/Todo";
 import Login from "./pages/Login/Login";
 import Landing from "./pages/Landing/Landing";
 import { useGetUser } from "./hooks";
+import Notes from "./pages/Notes/Notes";
+import NotesDetails from "./pages/NotesDetails/NotesDetails";
 
 function App() {
   // eslint-disable-next-line
@@ -14,8 +16,15 @@ function App() {
         <Route path="/todos">
           {user ? <Todo user={user} dispatch={dispatch} /> : <Redirect to="/login" />}
         </Route>
+        <Route path="/notes">
+          {user ? <Notes user={user} dispatch={dispatch} /> : <Redirect to="/login" />}
+        </Route>
+        <Route path="/notesDetails/:notesDetailsId">
+          <NotesDetails user={user} dispatch={dispatch} />
+          {/*{user ? <NotesDetails user={user} dispatch={dispatch} /> : <Redirect to="/login" />}*/}
+        </Route>
         <Route path="/login">
-          {user ? <Redirect to="/todos" /> : <Login dispatch={dispatch}/>}
+          {user ? <Redirect to="/notes" /> : <Login dispatch={dispatch}/>}
         </Route>
         <Route exact path="/">
           <Landing />
