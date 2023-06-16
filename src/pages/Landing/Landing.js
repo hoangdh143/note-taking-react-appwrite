@@ -5,7 +5,7 @@ const Landing = () => {
   const history = useHistory();
 
   const handleClick = () => {
-    history.push("/todos");
+    history.push("/notes");
   };
 
   const links = [

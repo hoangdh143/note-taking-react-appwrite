@@ -1,4 +1,5 @@
 import api from '../../api/api';
+import {trimStr} from "../../utils/utils";
 
 const ChildItem = ({ item, onChecked }) => {
     const handleChecked = async (e, item) => {
@@ -18,7 +19,7 @@ const ChildItem = ({ item, onChecked }) => {
                 <div
                     className="capitalize ml-3 text-md font-medium"
                 >
-                    {item['content']}
+                    {trimStr(item['content'])}
                 </div>
             </div>
         </li>

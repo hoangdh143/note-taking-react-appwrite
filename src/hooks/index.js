@@ -223,7 +223,7 @@ export const useGetUser = () => {
 
   useEffect(() => {
     let didCancel = false;
-    const getTodos = async () => {
+    const getAccount = async () => {
       dispatch({ type: FetchState.FETCH_INIT });
       try {
         const account = await api.getAccount();
@@ -236,7 +236,7 @@ export const useGetUser = () => {
         }
       }
     };
-    getTodos();
+    getAccount();
     return () => (didCancel = true);
   }, []);
 

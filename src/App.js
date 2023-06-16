@@ -13,9 +13,6 @@ function App() {
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/todos">
-          {user ? <Todo user={user} dispatch={dispatch} /> : <Redirect to="/login" />}
-        </Route>
         <Route path="/notes">
           {user ? <Notes user={user} dispatch={dispatch} /> : <Redirect to="/login" />}
         </Route>

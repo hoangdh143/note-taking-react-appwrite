@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import React, {useState} from 'react';
 import api from '../../api/api';
-import { FetchState, useGetNotes } from '../../hooks';
-import { Server } from '../../utils/config';
+import {FetchState, useGetNotes} from '../../hooks';
+import {Server} from '../../utils/config';
 import Alert from '../Alert/Alert';
-import { Permission, Role } from 'appwrite';
+import {Permission, Role} from 'appwrite';
 import NotesItem from "./NotesItem";
+import ReactQuill from "react-quill";
+import SearchBar from "../NotesDetails/SearchBar";
 
-const Notes = ({ user, dispatch }) => {
-    const [stale, setStale] = useState({ stale: false });
-    const [{ notes, isLoading, isError }] = useGetNotes(stale);
+const Notes = ({user, dispatch}) => {
+    const [stale, setStale] = useState({stale: false});
+    const [{notes, isLoading, isError}] = useGetNotes(stale);
     const [currentNotes, setCurrentNotes] = useState('');
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [searchedNotes, setSearchedNotes] = useState([]);
 
     const handleAddNotes = async (e) => {
         e.preventDefault();
@@ -25,54 +29,75 @@ const Notes = ({ user, dispatch }) => {
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            setStale({ stale: true });
+            setStale({stale: true});
             setCurrentNotes('');
         } catch (e) {
             console.error('Error in adding notes');
         }
     };
 
+    const onSearchHandle = async (searchTerm) => {
+        try {
+            setIsSearchLoading(true);
+            const data = await api.listDocumentsWithContent(Server.databaseID, Server.collectionNotesID, searchTerm, [
+                Permission.read(Role.user(user['$id'])),
+                Permission.write(Role.user(user['$id'])),
+            ]);
+            setSearchedNotes(data.documents);
+            setIsSearchLoading(false);
+        } catch (e) {
+            console.error('Error in getting notes');
+        }
+    }
+
     const handleLogout = async (e) => {
-        dispatch({ type: FetchState.FETCH_INIT });
+        dispatch({type: FetchState.FETCH_INIT});
         try {
             await api.deleteCurrentSession();
-            dispatch({ type: FetchState.FETCH_SUCCESS, payload: null });
+            dispatch({type: FetchState.FETCH_SUCCESS, payload: null});
         } catch (e) {
-            dispatch({ type: FetchState.FETCH_FAILURE });
+            dispatch({type: FetchState.FETCH_FAILURE});
         }
     };
 
     return (
         <>
             <section className="container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
-                {isError && <Alert color="red" message="Something went wrong..." />}
+                {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
                     <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                        📝 <br /> &nbsp; Notes taking system
+                        📝 <br/> &nbsp; Notes taking system
                     </div>
 
                     <form onSubmit={handleAddNotes}>
-                        <textarea
-                            className="w-full my-4 px-6 py-4 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md"
-                            placeholder="🤔   What to do today?"
-                            value={currentNotes}
-                            onChange={(e) => setCurrentNotes(e.target.value)}
-                        ></textarea>
+                        <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotes}
+                                    onChange={setCurrentNotes}/>
                         <button
                             className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
                             type="submit"
                         >
-                            Submit
+                            Add New
                         </button>
                     </form>
 
                     {isLoading && <h1> Loading .... </h1>}
+                    <SearchBar onSearch={onSearchHandle}/>
 
-                    <ul>
-                        {notes.map((item) => (
-                            <NotesItem key={item['$id']} item={item} setStale={setStale} />
-                        ))}
-                    </ul>
+                    {isSearchLoading && <h1>Searching ...</h1>}
+                    {searchedNotes.length > 0 && (
+                        <ul>
+                            {searchedNotes.map((item) => (
+                                <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                            ))}
+                        </ul>
+                    )}
+                    {searchedNotes.length === 0 && (
+                        <ul>
+                            {notes.map((item) => (
+                                <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             </section>
 

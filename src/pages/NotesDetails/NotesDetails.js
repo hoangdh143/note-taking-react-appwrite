@@ -7,6 +7,8 @@ import { Permission, Role } from 'appwrite';
 import {useParams} from "react-router-dom";
 import NotesChild from "./NotesChild";
 import AddChild from "./AddChild";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const NotesDetails = ({ user, dispatch }) => {
     const { notesDetailsId } = useParams();
@@ -62,18 +64,14 @@ const NotesDetails = ({ user, dispatch }) => {
             <section className="container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
                 {isError && <Alert color="red" message="Something went wrong..." />}
                 <div className="p-16 rounded-lg text-center">
+                    <a href={"/notes"}>
                     <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
                         📝 <br /> &nbsp; Notes taking system
                     </div>
+                    </a>
 
                     <form onSubmit={handleEditNotes}>
-                        <textarea
-                            // type="text"
-                            className="w-full my-4 px-6 py-4 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md"
-                            placeholder="🤔   What to do today?"
-                            value={currentNotesContent}
-                            onChange={(e) => setCurrentNotesContent(e.target.value)}
-                        ></textarea>
+                        <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotesContent} onChange={setCurrentNotesContent} />
                         <button
                             className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
                             type="submit"
