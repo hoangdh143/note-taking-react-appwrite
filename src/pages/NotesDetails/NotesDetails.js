@@ -25,7 +25,11 @@ const NotesDetails = ({ user, dispatch }) => {
         if ("children" in oneNotes && oneNotes["children"].length > 0) {
             setStaleChildren({stale: true, childrenIds: oneNotes.children});
         }
-    }, [oneNotes, shouldReloadChildren]);
+    }, [oneNotes]);
+
+    useEffect(() => {
+        setStaleOne({stale: true});
+    }, [shouldReloadChildren]);
 
     const handleEditNotes = async (e) => {
         e.preventDefault();

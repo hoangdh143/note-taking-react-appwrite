@@ -9,6 +9,7 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [notes, setNotes] = useState([]);
+    const [isAdding, setIsAdding] = useState(false);
 
     const openModal = () => {
         setIsOpen(true);
@@ -26,7 +27,6 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
                 Permission.write(Role.user(user['$id'])),
             ]);
             setNotes(data.documents.map(item => ({...item, isChecked: false})));
-            setShouldReloadChildren({reload: true});
             setIsLoading(false);
         } catch (e) {
             console.error('Error in getting notes');
@@ -46,6 +46,7 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
 
     const addChild = async (e) => {
         e.preventDefault();
+        setIsAdding(true);
         const addedChildrenIds = notes.filter(item => item.isChecked).map(item => item["$id"]);
         const idArr = [...oneNotes.children, ...addedChildrenIds];
         const data = {
@@ -56,10 +57,12 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            // reloadAllChildren();
+            setShouldReloadChildren({reload: true});
+            setIsAdding(false);
             setIsOpen(false);
         } catch (e) {
             console.error('Error in adding children');
+            setIsAdding(false);
         }
     }
 
@@ -94,7 +97,7 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
                                 className="px-4 py-2 mx-2 rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
                                 onClick={addChild}
                             >
-                                Add
+                                {isAdding ? "Adding..." : "Add"}
                             </button>
                         </div>
                     </div>
