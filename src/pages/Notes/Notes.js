@@ -33,6 +33,7 @@ const Notes = ({user, dispatch}) => {
             setCurrentNotes('');
         } catch (e) {
             console.error('Error in adding notes');
+            console.log(e);
         }
     };
 
