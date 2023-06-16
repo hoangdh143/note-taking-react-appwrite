@@ -53,7 +53,7 @@ const NotesDetails = ({ user, dispatch }) => {
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            setStaleChildren({ stale: true, childrenIds: newChildren });
+            setStaleOne({stale: true})
         } catch (e) {
             console.error('Error in deleting child');
         }
