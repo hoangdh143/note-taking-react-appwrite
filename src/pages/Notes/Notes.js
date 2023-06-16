@@ -14,8 +14,10 @@ const Notes = ({user, dispatch}) => {
     const [currentNotes, setCurrentNotes] = useState('');
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [searchedNotes, setSearchedNotes] = useState([]);
+    const [isAdding, setIsAdding] = useState(false);
 
     const handleAddNotes = async (e) => {
+        setIsAdding(true);
         e.preventDefault();
         // console.log('Adding Notes');
         const data = {
@@ -31,9 +33,11 @@ const Notes = ({user, dispatch}) => {
             ]);
             setStale({stale: true});
             setCurrentNotes('');
+            setIsAdding(false);
         } catch (e) {
             console.error('Error in adding notes');
             console.log(e);
+            setIsAdding(false);
         }
     };
 
@@ -77,7 +81,7 @@ const Notes = ({user, dispatch}) => {
                             className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
                             type="submit"
                         >
-                            Add New
+                            {isAdding ? "Adding ..." : "Add New"}
                         </button>
                     </form>
 

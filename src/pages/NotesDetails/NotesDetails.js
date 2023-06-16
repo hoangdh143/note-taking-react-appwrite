@@ -19,6 +19,7 @@ const NotesDetails = ({ user, dispatch }) => {
     const [{ children, isLoading: isChildrenLoading, isError: isChildrenError }] = useGetChildren(staleChildren);
     const [currentNotesContent, setCurrentNotesContent] = useState('');
     const [shouldReloadChildren, setShouldReloadChildren] = useState({reload: false});
+    const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
         setCurrentNotesContent(oneNotes.content);
@@ -32,6 +33,7 @@ const NotesDetails = ({ user, dispatch }) => {
     }, [shouldReloadChildren]);
 
     const handleEditNotes = async (e) => {
+        setIsUpdating(true);
         e.preventDefault();
         const data = {
             content: currentNotesContent,
@@ -42,8 +44,10 @@ const NotesDetails = ({ user, dispatch }) => {
                 Permission.write(Role.user(user['$id'])),
             ]);
             setStaleOne({ stale: true });
+            setIsUpdating(false);
         } catch (e) {
             console.error('Error in editing notes');
+            setIsUpdating(false);
         }
     };
 
@@ -80,7 +84,7 @@ const NotesDetails = ({ user, dispatch }) => {
                             className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
                             type="submit"
                         >
-                            Update
+                            {isUpdating ? "Updating ..." : "Update"}
                         </button>
                     </form>
 

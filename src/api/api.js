@@ -49,10 +49,18 @@ let api = {
       Query.search("content", searchTerm),
     ]);
   },
+
   listDocumentsWithIds: (databaseId, collectionId, ids) => {
     return api.provider().database.listDocuments(databaseId, collectionId, [
         Query.equal("$id", ids),
     ]);
+  },
+
+  listTop5RecentDocuments: (databaseId, collectionId) => {
+    return api.provider().database.listDocuments(databaseId, collectionId, [
+      Query.orderDesc("$createdAt"),
+      Query.limit(5),
+    ])
   },
 
   updateDocument: (databaseId, collectionId, documentId, data, permissions) => {

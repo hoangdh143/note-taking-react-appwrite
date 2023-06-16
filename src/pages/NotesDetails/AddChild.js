@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import SearchBar from "./SearchBar";
 import ChildItem from "./ChildItem";
 import api from "../../api/api";
@@ -13,11 +13,27 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
 
     const openModal = () => {
         setIsOpen(true);
+        getTop5RecentNotes();
     };
 
     const closeModal = () => {
         setIsOpen(false);
     };
+
+    const getTop5RecentNotes = async () => {
+        try {
+            setIsLoading(true);
+            const data = await api.listTop5RecentDocuments(Server.databaseID, Server.collectionNotesID, [
+                Permission.read(Role.user(user['$id'])),
+                Permission.write(Role.user(user['$id'])),
+            ]);
+            setNotes(data.documents.map(item => ({...item, isChecked: false})));
+            setIsLoading(false);
+        } catch (e) {
+            console.error('Error in getting notes');
+            console.log(e);
+        }
+    }
 
     const onSearchHandle = async (searchTerm) => {
         try {
