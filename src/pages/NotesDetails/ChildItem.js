@@ -1,4 +1,3 @@
-import api from '../../api/api';
 import {trimStr} from "../../utils/utils";
 
 const ChildItem = ({ item, onChecked }) => {

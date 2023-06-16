@@ -1,5 +1,3 @@
-import api from '../../api/api';
-import { Server } from '../../utils/config';
 import { deleteButton } from '../icons';
 import {trimStr} from "../../utils/utils";
 
