@@ -63,7 +63,7 @@ const Notes = ({user, dispatch}) => {
 
     return (
         <>
-            <section className="container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
+            <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
                 {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
                     <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
