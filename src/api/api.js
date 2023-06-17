@@ -41,7 +41,10 @@ let api = {
   },
 
   listDocuments: (databaseId, collectionId) => {
-    return api.provider().database.listDocuments(databaseId, collectionId);
+    return api.provider().database.listDocuments(databaseId, collectionId, [
+        Query.orderDesc("$createdAt"),
+        Query.limit(20),
+    ]);
   },
 
   listDocumentsWithContent: (databaseId, collectionId, searchTerm) => {
