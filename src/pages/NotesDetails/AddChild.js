@@ -5,7 +5,7 @@ import api from "../../api/api";
 import {Server} from "../../utils/config";
 import {Permission, Role} from "appwrite";
 
-const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
+const AddChild = ({user, setShouldReloadChildren, addChild, oneNotes}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [notes, setNotes] = useState([]);
@@ -60,22 +60,14 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
         setNotes(newNotes);
     }
 
-    const addChild = async (e) => {
+    const addChildHandler = async (e) => {
         e.preventDefault();
         setIsAdding(true);
         const addedChildrenIds = notes.filter(item => item.isChecked).map(item => item["$id"]);
-        const idArr = [...oneNotes.children, ...addedChildrenIds];
-        const data = {
-            children: [...new Set(idArr)],
-        };
         try {
-            await api.updateDocument(Server.databaseID, Server.collectionNotesID, oneNotes['$id'], data, [
-                Permission.read(Role.user(user['$id'])),
-                Permission.write(Role.user(user['$id'])),
-            ]);
-            setShouldReloadChildren({reload: true});
+            await addChild(addedChildrenIds);
             setIsAdding(false);
-            setIsOpen(false);
+            setIsOpen(false)
         } catch (e) {
             console.error('Error in adding children');
             setIsAdding(false);
@@ -111,7 +103,7 @@ const AddChild = ({user, setShouldReloadChildren, oneNotes}) => {
                             </button>
                             <button
                                 className="px-4 py-2 mx-2 rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
-                                onClick={addChild}
+                                onClick={addChildHandler}
                             >
                                 {isAdding ? "Adding..." : "Add"}
                             </button>

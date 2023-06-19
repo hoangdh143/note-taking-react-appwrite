@@ -8,7 +8,7 @@ export const FetchState = {
   FETCH_FAILURE: 2,
 };
 
-export const useGetOneNotes = (stale, id) => {
+export const useGetOneNotes = (stale) => {
   const reducer = (state, action) => {
     switch (action.type) {
       case FetchState.FETCH_INIT:
@@ -30,11 +30,16 @@ export const useGetOneNotes = (stale, id) => {
   const [state, dispatch] = useReducer(reducer, {
     isLoading: false,
     isError: false,
-    oneNotes: {},
+    oneNotes: {
+      id: "",
+      content: "",
+      children: [],
+    },
   });
 
   useEffect(() => {
     let didCancel = false;
+    let { id } = stale;
     const getNotes = async () => {
       dispatch({ type: FetchState.FETCH_INIT });
       try {
@@ -82,22 +87,27 @@ export const useGetChildren = (stale) => {
 
   useEffect(() => {
     let didCancel = false;
+    const {childrenIds} = stale;
     const getChildren = async () => {
       dispatch({ type: FetchState.FETCH_INIT });
-      try {
-        const data = await api.listDocumentsWithIds(Server.databaseID, Server.collectionNotesID, stale.childrenIds);
-        if (!didCancel) {
-          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
-        }
-      } catch (e) {
-        if (!didCancel) {
-          dispatch({ type: FetchState.FETCH_FAILURE });
+      if (childrenIds.length === 0) {
+        dispatch({ type: FetchState.FETCH_SUCCESS, payload: [] });
+      } else {
+        try {
+          const data = await api.listDocumentsWithIds(Server.databaseID, Server.collectionNotesID, childrenIds);
+          if (!didCancel) {
+            dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
+          }
+        } catch (e) {
+          if (!didCancel) {
+            dispatch({ type: FetchState.FETCH_FAILURE });
+          }
         }
       }
     };
     getChildren();
     return () => (didCancel = true);
-  }, [stale.childrenIds]);
+  }, [stale]);
 
   return [state];
 };

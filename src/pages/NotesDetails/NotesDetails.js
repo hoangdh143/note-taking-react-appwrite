@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import api from '../../api/api';
 import {useGetChildren, useGetOneNotes} from '../../hooks';
 import { Server } from '../../utils/config';
@@ -9,28 +9,35 @@ import NotesChild from "./NotesChild";
 import AddChild from "./AddChild";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import {RoutesContext} from "../../App";
+import {trimStr} from "../../utils/utils";
+import {HistorySpan} from "./HistorySpan";
 
 const NotesDetails = ({ user, dispatch }) => {
     const { notesDetailsId } = useParams();
 
-    const [staleOne, setStaleOne] = useState({ stale: false, childrenIds: [] });
-    const [{ oneNotes, isLoading, isError }] = useGetOneNotes(staleOne, notesDetailsId);
-    const [staleChildren, setStaleChildren] = useState({ stale: false });
+    const [staleOne, setStaleOne] = useState({ stale: false, id: notesDetailsId });
+    const [{ oneNotes, isLoading, isError }] = useGetOneNotes(staleOne);
+    const [staleChildren, setStaleChildren] = useState({ stale: false, childrenIds: [] });
     const [{ children, isLoading: isChildrenLoading, isError: isChildrenError }] = useGetChildren(staleChildren);
     const [currentNotesContent, setCurrentNotesContent] = useState('');
-    const [shouldReloadChildren, setShouldReloadChildren] = useState({reload: false});
     const [isUpdating, setIsUpdating] = useState(false);
+    const {routes, setRoutes} = useContext(RoutesContext);
 
     useEffect(() => {
         setCurrentNotesContent(oneNotes.content);
-        if ("children" in oneNotes && oneNotes["children"].length > 0) {
-            setStaleChildren({stale: true, childrenIds: oneNotes.children});
+        setStaleChildren({stale: true, childrenIds: oneNotes.children});
+        const routesIndex = routes.findIndex(item => item.id === notesDetailsId);
+        if (oneNotes.content && routesIndex < 0) {
+            setRoutes([...routes, {name: trimStr(oneNotes.content, 10), id: notesDetailsId}]);
+        } else if (oneNotes.content && routesIndex >= 0) {
+            setRoutes(routes.slice(0, routesIndex + 1));
         }
     }, [oneNotes]);
 
     useEffect(() => {
-        setStaleOne({stale: true});
-    }, [shouldReloadChildren]);
+        setStaleOne({stale: true, id: notesDetailsId});
+    }, [notesDetailsId]);
 
     const handleEditNotes = async (e) => {
         setIsUpdating(true);
@@ -43,7 +50,7 @@ const NotesDetails = ({ user, dispatch }) => {
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            setStaleOne({ stale: true });
+            setStaleOne({ stale: true, id: notesDetailsId });
             setIsUpdating(false);
         } catch (e) {
             console.error('Error in editing notes');
@@ -61,9 +68,25 @@ const NotesDetails = ({ user, dispatch }) => {
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            setStaleOne({stale: true})
+            setStaleOne({stale: true, id: notesDetailsId})
         } catch (e) {
             console.error('Error in deleting child');
+        }
+    }
+
+    const addChild = async (addedIds) => {
+        const idArr = [...oneNotes.children, ...addedIds];
+        const data = {
+            children: [...new Set(idArr)],
+        };
+        try {
+            await api.updateDocument(Server.databaseID, Server.collectionNotesID, oneNotes['$id'], data, [
+                Permission.read(Role.user(user['$id'])),
+                Permission.write(Role.user(user['$id'])),
+            ]);
+            setStaleOne({stale: true, id: notesDetailsId});
+        } catch (e) {
+            console.error('Error in updating document');
         }
     }
 
@@ -77,6 +100,7 @@ const NotesDetails = ({ user, dispatch }) => {
                         📝 <br /> &nbsp; Notes taking system
                     </div>
                     </Link>
+                    <HistorySpan history={routes}/>
 
                     <form onSubmit={handleEditNotes}>
                         <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotesContent} onChange={setCurrentNotesContent} />
@@ -89,7 +113,7 @@ const NotesDetails = ({ user, dispatch }) => {
                     </form>
 
                     {isLoading && <h1> Loading .... </h1>}
-                    <AddChild user={user} oneNotes={oneNotes} setShouldReloadChildren={setShouldReloadChildren}/>
+                    <AddChild user={user} oneNotes={oneNotes} addChild={addChild}/>
                     {isChildrenLoading && <h1>Loading children ...</h1>}
                     <ul>
                         {children.map((item) => (

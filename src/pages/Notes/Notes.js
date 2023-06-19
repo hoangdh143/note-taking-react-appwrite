@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import api from '../../api/api';
 import {FetchState, useGetNotes} from '../../hooks';
 import {Server} from '../../utils/config';
@@ -7,6 +7,7 @@ import {Permission, Role} from 'appwrite';
 import NotesItem from "./NotesItem";
 import ReactQuill from "react-quill";
 import SearchBar from "../NotesDetails/SearchBar";
+import {RoutesContext} from "../../App";
 
 const Notes = ({user, dispatch}) => {
     const [stale, setStale] = useState({stale: false});
@@ -15,6 +16,11 @@ const Notes = ({user, dispatch}) => {
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [searchedNotes, setSearchedNotes] = useState([]);
     const [isAdding, setIsAdding] = useState(false);
+    const {setRoutes} = useContext(RoutesContext);
+
+    useEffect(() => {
+        setRoutes([]);
+    }, [])
 
     const handleAddNotes = async (e) => {
         setIsAdding(true);
