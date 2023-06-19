@@ -4,7 +4,7 @@ import {useGetChildren, useGetOneNotes} from '../../hooks';
 import { Server } from '../../utils/config';
 import Alert from '../Alert/Alert';
 import { Permission, Role } from 'appwrite';
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import NotesChild from "./NotesChild";
 import AddChild from "./AddChild";
 import ReactQuill from 'react-quill';
@@ -72,11 +72,11 @@ const NotesDetails = ({ user, dispatch }) => {
             <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
                 {isError && <Alert color="red" message="Something went wrong..." />}
                 <div className="p-16 rounded-lg text-center">
-                    <a href={"/notes"}>
+                    <Link to={"/notes"}>
                     <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
                         📝 <br /> &nbsp; Notes taking system
                     </div>
-                    </a>
+                    </Link>
 
                     <form onSubmit={handleEditNotes}>
                         <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotesContent} onChange={setCurrentNotesContent} />
