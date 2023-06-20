@@ -6,6 +6,7 @@ export const FetchState = {
   FETCH_INIT: 0,
   FETCH_SUCCESS: 1,
   FETCH_FAILURE: 2,
+  FETCH_ADDED: 3,
 };
 
 export const useGetOneNotes = (stale) => {
@@ -124,6 +125,13 @@ export const useGetNotes = (stale) => {
           isError: false,
           notes: action.payload,
         };
+      case FetchState.FETCH_ADDED:
+        return {
+          ...state,
+          isLoading: false,
+          isError: false,
+          notes: [...state.notes, ...action.payload],
+        }
       case FetchState.FETCH_FAILURE:
         return { ...state, isLoading: false, isError: true };
       default:
@@ -139,12 +147,15 @@ export const useGetNotes = (stale) => {
 
   useEffect(() => {
     let didCancel = false;
+    let lastId = stale.hasOwnProperty("lastId") ? stale.lastId : null;
     const getNotes = async () => {
       dispatch({ type: FetchState.FETCH_INIT });
       try {
-        const data = await api.listDocuments(Server.databaseID, Server.collectionNotesID);
-        if (!didCancel) {
+        const data = await api.listDocuments(Server.databaseID, Server.collectionNotesID, lastId);
+        if (!didCancel && !lastId) {
           dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
+        } else if (!didCancel && lastId) {
+          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents });
         }
       } catch (e) {
         if (!didCancel) {

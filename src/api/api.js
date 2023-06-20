@@ -40,11 +40,16 @@ let api = {
       .database.createDocument(databaseId, collectionId, 'unique()', data, permissions);
   },
 
-  listDocuments: (databaseId, collectionId) => {
-    return api.provider().database.listDocuments(databaseId, collectionId, [
-        Query.orderDesc("$createdAt"),
-        Query.limit(20),
-    ]);
+  listDocuments: (databaseId, collectionId, lastId = null, limit = 20) => {
+    const queries = lastId ? [
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit),
+      Query.cursorAfter(lastId)
+    ] : [
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit)
+    ];
+    return api.provider().database.listDocuments(databaseId, collectionId, queries);
   },
 
   listDocumentsWithContent: (databaseId, collectionId, searchTerm) => {

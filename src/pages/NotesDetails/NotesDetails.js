@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import api from '../../api/api';
 import {useGetChildren, useGetOneNotes} from '../../hooks';
 import { Server } from '../../utils/config';
@@ -12,6 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 import {RoutesContext} from "../../App";
 import {trimStr} from "../../utils/utils";
 import {HistorySpan} from "./HistorySpan";
+import {Tooltip} from "react-tooltip";
 
 const NotesDetails = ({ user, dispatch }) => {
     const { notesDetailsId } = useParams();
@@ -122,6 +123,7 @@ const NotesDetails = ({ user, dispatch }) => {
                     </ul>
                 </div>
             </section>
+            <Tooltip id="notes-details-tooltip" className="max-w-lg"/>
         </>
     );
 };

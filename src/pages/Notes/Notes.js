@@ -32,7 +32,6 @@ const Notes = ({user, dispatch}) => {
             children: [],
             tags: []
         };
-        // console.log(data, user);
         try {
             await api.createDocument(Server.databaseID, Server.collectionNotesID, data, [
                 Permission.read(Role.user(user['$id'])),
@@ -47,6 +46,10 @@ const Notes = ({user, dispatch}) => {
             setIsAdding(false);
         }
     };
+
+    const loadMoreHandler = () => {
+        setStale({stale: true, lastId: notes[notes.length - 1]['$id']});
+    }
 
     const onSearchHandle = async (searchTerm) => {
         try {
@@ -110,6 +113,12 @@ const Notes = ({user, dispatch}) => {
                             ))}
                         </ul>
                     )}
+                    <button
+                        className="w-full my-4 px-6 py-2 text-xl rounded-lg border-2 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md border-green-600 hover:bg-teal-700 text-gray-900"
+                        onClick={loadMoreHandler}
+                    >
+                        {isLoading ? "Loading ..." : "Load More"}
+                    </button>
                 </div>
             </section>
 

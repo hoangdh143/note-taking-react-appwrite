@@ -1,5 +1,5 @@
 import { deleteButton } from '../icons';
-import {trimStr} from "../../utils/utils";
+import {cleanText, trimStr} from "../../utils/utils";
 import {Link} from "react-router-dom";
 
 const NotesChild = ({ item, deleteChild }) => {
@@ -17,6 +17,8 @@ const NotesChild = ({ item, deleteChild }) => {
             <div className="flex">
                 <div
                     className={`capitalize ml-3 text-md font-medium`}
+                    data-tooltip-id="notes-details-tooltip"
+                    data-tooltip-content={cleanText(item['content'])}
                 >
                     <Link to={"/notesDetails/" + item["$id"]} className="cursor-pointer">{trimStr(item['content'])}</Link>
                 </div>
