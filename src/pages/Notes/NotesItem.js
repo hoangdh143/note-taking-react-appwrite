@@ -24,6 +24,8 @@ const NotesItem = ({ item, setStale }) => {
             <div className="flex">
                 <div
                     className={`capitalize ml-3 text-md font-medium`}
+                    data-tooltip-id="notes-tooltip"
+                    data-tooltip-content={item['content']}
                 >
                     <Link to={"/notesDetails/" + item["$id"]} className="cursor-pointer">{trimStr(item['content'])}</Link>
                 </div>

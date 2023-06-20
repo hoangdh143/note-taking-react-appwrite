@@ -8,6 +8,7 @@ import NotesItem from "./NotesItem";
 import ReactQuill from "react-quill";
 import SearchBar from "../NotesDetails/SearchBar";
 import {RoutesContext} from "../../App";
+import { Tooltip } from 'react-tooltip'
 
 const Notes = ({user, dispatch}) => {
     const [stale, setStale] = useState({stale: false});
@@ -61,7 +62,7 @@ const Notes = ({user, dispatch}) => {
         }
     }
 
-    const handleLogout = async (e) => {
+    const handleLogout = async () => {
         dispatch({type: FetchState.FETCH_INIT});
         try {
             await api.deleteCurrentSession();
@@ -120,6 +121,7 @@ const Notes = ({user, dispatch}) => {
                     Logout 👋
                 </button>
             </section>
+            <Tooltip id="notes-tooltip" className="max-w-lg"/>
         </>
     );
 };
