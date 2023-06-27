@@ -80,7 +80,7 @@ const Categories = ({user, dispatch}) => {
                     </div>
 
                     <form onSubmit={handleAddCategory}>
-                        <input type={"text"} className="w-full my-4 px-6 py-4" value={categoryName}
+                        <textarea className="w-full my-4 px-6 py-4" value={categoryName}
                                onChange={categoryNameHandler}/>
                         <button
                             className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
