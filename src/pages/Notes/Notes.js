@@ -8,11 +8,11 @@ import NotesItem from "./NotesItem";
 import ReactQuill from "react-quill";
 import SearchBar from "../NotesDetails/SearchBar";
 import {RoutesContext} from "../../App";
-import { Tooltip } from 'react-tooltip'
-import {useParams} from "react-router-dom";
+import {Tooltip} from 'react-tooltip'
+import {Link, useParams} from "react-router-dom";
 
 const Notes = ({user, dispatch}) => {
-    const { categoryId } = useParams();
+    const {categoryId} = useParams();
     const [stale, setStale] = useState({stale: false});
     const [{notes, isLoading, isError}] = useGetNotes(stale, categoryId);
     const [currentNotes, setCurrentNotes] = useState('');
@@ -83,9 +83,11 @@ const Notes = ({user, dispatch}) => {
             <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
                 {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
-                    <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                        📝 <br/> &nbsp; Notes taking system
-                    </div>
+                    <Link to={"/categories"}>
+                        <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
+                            📝 <br/> &nbsp; Notes taking system
+                        </div>
+                    </Link>
 
                     <form onSubmit={handleAddNotes}>
                         <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotes}
