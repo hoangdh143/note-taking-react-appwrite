@@ -28,8 +28,7 @@ const CategoryCard = ({item, setStale}) => {
                                 {item["name"]}
                             </div>
                             <p className="mt-2 text-gray-500">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at
-                                ipsum eu nunc commodo posuere et sit amet ligula.
+                                {item["description"]}
                             </p>
                         </div>
                         <button

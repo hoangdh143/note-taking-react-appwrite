@@ -17,9 +17,11 @@ const Categories = ({user, dispatch}) => {
     const handleAddCategory = async (e) => {
         setIsAdding(true);
         e.preventDefault();
+        const lines = categoryName.split("\n");
         // console.log('Adding Notes');
         const data = {
-            name: categoryName,
+            name: lines[0],
+            description: lines.length > 1 ? lines[1] : ""
         };
         try {
             await api.createDocument(Server.databaseID, Server.collectionCategoriesID, data, [
