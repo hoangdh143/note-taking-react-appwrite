@@ -5,6 +5,7 @@ import {useGetUser} from "./hooks";
 import Notes from "./pages/Notes/Notes";
 import NotesDetails from "./pages/NotesDetails/NotesDetails";
 import {createContext, useState} from 'react';
+import Categories from "./pages/Categories/Categories";
 
 export const RoutesContext = createContext();
 
@@ -17,15 +18,18 @@ function App() {
         <BrowserRouter>
             <RoutesContext.Provider value={{routes, setRoutes}}>
                 <Switch>
-                    <Route path="/notes">
+                    <Route path="/category/:categoryId">
                         {user ? <Notes user={user} dispatch={dispatch}/> : <Redirect to="/login"/>}
+                    </Route>
+                    <Route path="/categories">
+                        {user ? <Categories user={user} dispatch={dispatch}/> : <Redirect to="/login"/>}
                     </Route>
                     <Route path="/notesDetails/:notesDetailsId">
                         <NotesDetails user={user} dispatch={dispatch}/>
                         {/*{user ? <NotesDetails user={user} dispatch={dispatch} /> : <Redirect to="/login" />}*/}
                     </Route>
                     <Route path="/login">
-                        {user ? <Redirect to="/notes"/> : <Login dispatch={dispatch}/>}
+                        {user ? <Redirect to="/categories"/> : <Login dispatch={dispatch}/>}
                     </Route>
                     <Route exact path="/">
                         <Landing/>

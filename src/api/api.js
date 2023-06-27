@@ -58,10 +58,30 @@ let api = {
     ]);
   },
 
+  listDocumentsWithName: (databaseId, collectionId, searchTerm) => {
+    return api.provider().database.listDocuments(databaseId, collectionId, [
+      Query.search("name", searchTerm),
+    ]);
+  },
+
   listDocumentsWithIds: (databaseId, collectionId, ids) => {
     return api.provider().database.listDocuments(databaseId, collectionId, [
         Query.equal("$id", ids),
     ]);
+  },
+
+  listDocumentsWithCategoryId: (databaseId, collectionId, categoryId, lastId = null, limit = 20) => {
+    const queries = lastId ? [
+        Query.equal("categoryId", categoryId),
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit),
+      Query.cursorAfter(lastId)
+    ] : [
+      Query.equal("categoryId", categoryId),
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit)
+    ];
+    return api.provider().database.listDocuments(databaseId, collectionId, queries);
   },
 
   listTop5RecentDocuments: (databaseId, collectionId) => {

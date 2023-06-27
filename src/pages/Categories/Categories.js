@@ -1,47 +1,33 @@
 import React, {useContext, useEffect, useState} from 'react';
 import api from '../../api/api';
-import {FetchState, useGetNotes} from '../../hooks';
+import {FetchState, useGetCategories} from '../../hooks';
 import {Server} from '../../utils/config';
 import Alert from '../Alert/Alert';
 import {Permission, Role} from 'appwrite';
-import NotesItem from "./NotesItem";
-import ReactQuill from "react-quill";
+import CategoryCard from "./CategoryCard";
 import SearchBar from "../NotesDetails/SearchBar";
-import {RoutesContext} from "../../App";
-import { Tooltip } from 'react-tooltip'
-import {useParams} from "react-router-dom";
 
-const Notes = ({user, dispatch}) => {
-    const { categoryId } = useParams();
+const Categories = ({user, dispatch}) => {
     const [stale, setStale] = useState({stale: false});
-    const [{notes, isLoading, isError}] = useGetNotes(stale, categoryId);
-    const [currentNotes, setCurrentNotes] = useState('');
-    const [isSearchLoading, setIsSearchLoading] = useState(false);
-    const [searchedNotes, setSearchedNotes] = useState([]);
+    const [{categories, isLoading, isError}] = useGetCategories(stale);
+    const [categoryName, setCategoryName] = useState("");
     const [isAdding, setIsAdding] = useState(false);
-    const {setRoutes} = useContext(RoutesContext);
-
-    useEffect(() => {
-        setRoutes([{name: "Main", url: "/category/" + categoryId}]);
-    }, [])
-
-    const handleAddNotes = async (e) => {
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [searchedCategories, setSearchedCategories] = useState([]);
+    const handleAddCategory = async (e) => {
         setIsAdding(true);
         e.preventDefault();
         // console.log('Adding Notes');
         const data = {
-            content: currentNotes,
-            children: [],
-            tags: [],
-            categoryId: categoryId
+            name: categoryName,
         };
         try {
-            await api.createDocument(Server.databaseID, Server.collectionNotesID, data, [
+            await api.createDocument(Server.databaseID, Server.collectionCategoriesID, data, [
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
             setStale({stale: true});
-            setCurrentNotes('');
+            setCategoryName('');
             setIsAdding(false);
         } catch (e) {
             console.error('Error in adding notes');
@@ -51,21 +37,25 @@ const Notes = ({user, dispatch}) => {
     };
 
     const loadMoreHandler = () => {
-        setStale({stale: true, lastId: notes[notes.length - 1]['$id']});
+        setStale({stale: true, lastId: categories[categories.length - 1]['$id']});
     }
 
     const onSearchHandle = async (searchTerm) => {
         try {
             setIsSearchLoading(true);
-            const data = await api.listDocumentsWithContent(Server.databaseID, Server.collectionNotesID, searchTerm, [
+            const data = await api.listDocumentsWithName(Server.databaseID, Server.collectionCategoriesID, searchTerm, [
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            setSearchedNotes(data.documents);
+            setSearchedCategories(data.documents);
             setIsSearchLoading(false);
         } catch (e) {
             console.error('Error in getting notes');
         }
+    }
+
+    const categoryNameHandler = (e) => {
+        setCategoryName(e.target.value);
     }
 
     const handleLogout = async () => {
@@ -80,16 +70,16 @@ const Notes = ({user, dispatch}) => {
 
     return (
         <>
-            <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
+            <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-row">
                 {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
                     <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
                         📝 <br/> &nbsp; Notes taking system
                     </div>
 
-                    <form onSubmit={handleAddNotes}>
-                        <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotes}
-                                    onChange={setCurrentNotes}/>
+                    <form onSubmit={handleAddCategory}>
+                        <input type={"text"} className="w-full my-4 px-6 py-4" value={categoryName}
+                               onChange={categoryNameHandler}/>
                         <button
                             className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
                             type="submit"
@@ -102,17 +92,17 @@ const Notes = ({user, dispatch}) => {
                     <SearchBar onSearch={onSearchHandle}/>
 
                     {isSearchLoading && <h1>Searching ...</h1>}
-                    {searchedNotes.length > 0 && (
+                    {searchedCategories.length > 0 && (
                         <ul>
-                            {searchedNotes.map((item) => (
-                                <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                            {searchedCategories.map((item) => (
+                                <CategoryCard key={item['$id']} item={item} setStale={setStale}/>
                             ))}
                         </ul>
                     )}
-                    {searchedNotes.length === 0 && (
+                    {searchedCategories.length === 0 && (
                         <ul>
-                            {notes.map((item) => (
-                                <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                            {categories.map((item) => (
+                                <CategoryCard key={item['$id']} item={item} setStale={setStale}/>
                             ))}
                         </ul>
                     )}
@@ -133,9 +123,8 @@ const Notes = ({user, dispatch}) => {
                     Logout 👋
                 </button>
             </section>
-            <Tooltip id="notes-tooltip" className="max-w-lg"/>
         </>
     );
 };
 
-export default Notes;
+export default Categories;
