@@ -6,6 +6,7 @@ import Notes from "./pages/Notes/Notes";
 import NotesDetails from "./pages/NotesDetails/NotesDetails";
 import {createContext, useState} from 'react';
 import Categories from "./pages/Categories/Categories";
+import Reminds from "./pages/Notes/Reminds";
 
 export const RoutesContext = createContext();
 
@@ -23,6 +24,9 @@ function App() {
                     </Route>
                     <Route path="/categories">
                         {user ? <Categories user={user} dispatch={dispatch}/> : <Redirect to="/login"/>}
+                    </Route>
+                    <Route path="/reminds">
+                        {user ? <Reminds user={user} dispatch={dispatch}/> : <Redirect to="/login"/>}
                     </Route>
                     <Route path="/notesDetails/:notesDetailsId">
                         <NotesDetails user={user} dispatch={dispatch}/>

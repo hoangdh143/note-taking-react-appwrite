@@ -1,54 +1,68 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import api from '../../api/api';
-import {FetchState, useGetNotes} from '../../hooks';
+import {FetchState, useGetRemindNotes} from '../../hooks';
 import {Server} from '../../utils/config';
 import Alert from '../Alert/Alert';
 import {Permission, Role} from 'appwrite';
 import NotesItem from "./NotesItem";
-import ReactQuill from "react-quill";
 import SearchBar from "../NotesDetails/SearchBar";
-import {RoutesContext} from "../../App";
 import {Tooltip} from 'react-tooltip'
 import {Link, useParams} from "react-router-dom";
-import { TODAY, formatDateToMMDDYYYY, getThreeDaysLater } from '../../utils/utils';
+import { getThreeDaysLater } from '../../utils/utils';
 
-const Notes = ({user, dispatch}) => {
+const getNewRemind = (item) => {
+    const remindCounted = item["remindCounted"];
+    const remindDate = getThreeDaysLater();
+    return {
+        remindDate,
+        remindCounted: remindCounted + 1,
+    }
+}
+
+const Reminds = ({user, dispatch}) => {
     const {categoryId} = useParams();
     const [stale, setStale] = useState({stale: false});
-    const [{notes, isLoading, isError}] = useGetNotes(stale, categoryId);
-    const [currentNotes, setCurrentNotes] = useState('');
+    const [{notes, isLoading, isError}] = useGetRemindNotes(stale, categoryId);
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [searchedNotes, setSearchedNotes] = useState([]);
     const [isAdding, setIsAdding] = useState(false);
-    const {setRoutes} = useContext(RoutesContext);
 
-    useEffect(() => {
-        setRoutes([{name: "Main", url: "/category/" + categoryId}]);
-    }, [])
-
-    const handleAddNotes = async (e) => {
+    const handleDone = async (e, item) => {
         setIsAdding(true);
         e.preventDefault();
-        // console.log('Adding Notes');
         const data = {
-            content: currentNotes,
-            children: [],
-            tags: [],
-            categoryId: categoryId,
-            remindDate: getThreeDaysLater(),
-            remindCounted: 0,
+            remindDate: "",
         };
         try {
-            await api.createDocument(Server.databaseID, Server.collectionNotesID, data, [
+            await api.updateDocument(Server.databaseID, Server.collectionNotesID, item['$id'], data, [
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
-            setStale({stale: true});
-            setCurrentNotes('');
+            setStale({ stale: true });
             setIsAdding(false);
-        } catch (e) {
-            console.error('Error in adding notes');
-            console.log(e);
+        } catch (error) {
+            console.error('Error in editing notes');
+            setIsAdding(false);
+        }
+    };
+
+    const handleAgain = async (e, item) => {
+        setIsAdding(true);
+        e.preventDefault();
+        const { remindDate, remindCounted } = getNewRemind(item);
+        const data = {
+            remindDate: remindDate,
+            remindCounted: remindCounted,
+        };
+        try {
+            await api.updateDocument(Server.databaseID, Server.collectionNotesID, item['$id'], data, [
+                Permission.read(Role.user(user['$id'])),
+                Permission.write(Role.user(user['$id'])),
+            ]);
+            setStale({ stale: true });
+            setIsAdding(false);
+        } catch (error) {
+            console.error('Error in editing notes');
             setIsAdding(false);
         }
     };
@@ -88,20 +102,9 @@ const Notes = ({user, dispatch}) => {
                 <div className="p-16 rounded-lg text-center">
                     <Link to={"/categories"}>
                         <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                            📝 <br/> &nbsp; Notes taking system
+                            📝 <br/> &nbsp; Reminds
                         </div>
                     </Link>
-
-                    <form onSubmit={handleAddNotes}>
-                        <ReactQuill className="w-full my-4 px-6 py-4" theme="snow" value={currentNotes}
-                                    onChange={setCurrentNotes}/>
-                        <button
-                            className="w-full px-6 py-2 text-xl rounded-lg border-0 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md bg-green-600 hover:bg-teal-700 text-white"
-                            type="submit"
-                        >
-                            {isAdding ? "Adding ..." : "Add New"}
-                        </button>
-                    </form>
 
                     {isLoading && <h1> Loading .... </h1>}
                     <SearchBar onSearch={onSearchHandle}/>
@@ -117,7 +120,13 @@ const Notes = ({user, dispatch}) => {
                     {searchedNotes.length === 0 && (
                         <ul>
                             {notes.map((item) => (
-                                <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                                <div className='py-2 px-2 border border-gray-400 border-solid'>
+                                    <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                                    <div className='flex flex-col flex-grow mx-auto justify-center p-6 text-center'>
+                                        <button className='bg-white text-red-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleDone(e, item)}> {isAdding ? "Loading..." : "Done"}</button>
+                                        <button className='bg-white text-green-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleAgain(e, item)}>{isAdding ? "Loading..." : "Again"}</button>
+                                    </div>
+                                </div>
                             ))}
                         </ul>
                     )}
@@ -143,4 +152,4 @@ const Notes = ({user, dispatch}) => {
     );
 };
 
-export default Notes;
+export default Reminds;

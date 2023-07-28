@@ -6,6 +6,8 @@ import Alert from '../Alert/Alert';
 import {Permission, Role} from 'appwrite';
 import CategoryCard from "./CategoryCard";
 import SearchBar from "../NotesDetails/SearchBar";
+import {Link} from "react-router-dom";
+
 
 const Categories = ({user, dispatch}) => {
     const [stale, setStale] = useState({stale: false});
@@ -75,9 +77,14 @@ const Categories = ({user, dispatch}) => {
             <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-row">
                 {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
-                    <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
+                    {/* <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
                         📝 <br/> &nbsp; Notes taking system
-                    </div>
+                    </div> */}
+                    <Link to={"/reminds"}>
+                        <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
+                            📝 <br/> &nbsp; Notes taking system
+                        </div>
+                    </Link>
 
                     <form onSubmit={handleAddCategory}>
                         <textarea className="w-full my-4 px-6 py-4" value={categoryName}

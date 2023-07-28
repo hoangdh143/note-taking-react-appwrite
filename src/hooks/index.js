@@ -221,6 +221,63 @@ export const useGetNotes = (stale, categoryId) => {
   return [state];
 };
 
+export const useGetRemindNotes = (stale, categoryId) => {
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case FetchState.FETCH_INIT:
+        return { ...state, isLoading: true, isError: false };
+      case FetchState.FETCH_SUCCESS:
+        return {
+          ...state,
+          isLoading: false,
+          isError: false,
+          notes: action.payload,
+        };
+      case FetchState.FETCH_ADDED:
+        return {
+          ...state,
+          isLoading: false,
+          isError: false,
+          notes: [...state.notes, ...action.payload],
+        }
+      case FetchState.FETCH_FAILURE:
+        return { ...state, isLoading: false, isError: true };
+      default:
+        throw new Error();
+    }
+  };
+
+  const [state, dispatch] = useReducer(reducer, {
+    isLoading: false,
+    isError: false,
+    notes: [],
+  });
+
+  useEffect(() => {
+    let didCancel = false;
+    let lastId = stale.hasOwnProperty("lastId") ? stale.lastId : null;
+    const getNotes = async () => {
+      dispatch({ type: FetchState.FETCH_INIT });
+      try {
+        const data = await api.listRemindedDocuments(Server.databaseID, Server.collectionNotesID, categoryId, lastId);
+        if (!didCancel && !lastId) {
+          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
+        } else if (!didCancel && lastId) {
+          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents });
+        }
+      } catch (e) {
+        if (!didCancel) {
+          dispatch({ type: FetchState.FETCH_FAILURE });
+        }
+      }
+    };
+    getNotes();
+    return () => (didCancel = true);
+  }, [stale]);
+
+  return [state];
+};
+
 export const useGetTodos = (stale) => {
   const reducer = (state, action) => {
     switch (action.type) {

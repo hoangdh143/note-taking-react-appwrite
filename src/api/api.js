@@ -1,5 +1,6 @@
 import {Client as Appwrite, Databases, Account, Query} from "appwrite";
 import { Server } from "../utils/config";
+import { TODAY, formatDateToMMDDYYYY } from "../utils/utils";
 
 let api = {
   sdk: null,
@@ -78,6 +79,22 @@ let api = {
       Query.cursorAfter(lastId)
     ] : [
       Query.equal("categoryId", categoryId),
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit)
+    ];
+    return api.provider().database.listDocuments(databaseId, collectionId, queries);
+  },
+
+  listRemindedDocuments: (databaseId, collectionId, categoryId, lastId = null, limit = 20) => {
+    const today = formatDateToMMDDYYYY(TODAY);
+    const queries = lastId ? [
+      Query.equal("remindDate", today),
+      Query.equal("categoryId", categoryId),
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit),
+      Query.cursorAfter(lastId)
+    ] : [
+      Query.equal("remindDate", today),
       Query.orderDesc("$createdAt"),
       Query.limit(limit)
     ];
