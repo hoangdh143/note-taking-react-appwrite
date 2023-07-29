@@ -88,7 +88,7 @@ const Notes = ({user, dispatch}) => {
                 <div className="p-16 rounded-lg text-center">
                     <Link to={"/categories"}>
                         <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                            📝 <br/> &nbsp; Notes taking system
+                            📝 <br/> &nbsp; Notes taking
                         </div>
                     </Link>
 

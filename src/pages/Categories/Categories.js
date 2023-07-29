@@ -78,11 +78,11 @@ const Categories = ({user, dispatch}) => {
                 {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
                     {/* <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                        📝 <br/> &nbsp; Notes taking system
+                        📝 <br/> &nbsp; Notes taking
                     </div> */}
                     <Link to={"/reminds"}>
                         <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                            📝 <br/> &nbsp; Notes taking system
+                            📝 <br/> &nbsp; Notes taking
                         </div>
                     </Link>
 

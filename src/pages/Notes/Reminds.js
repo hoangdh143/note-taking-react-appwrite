@@ -20,9 +20,8 @@ const getNewRemind = (item) => {
 }
 
 const Reminds = ({user, dispatch}) => {
-    const {categoryId} = useParams();
     const [stale, setStale] = useState({stale: false});
-    const [{notes, isLoading, isError}] = useGetRemindNotes(stale, categoryId);
+    const [{notes, isLoading, isError}] = useGetRemindNotes(stale);
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [searchedNotes, setSearchedNotes] = useState([]);
     const [isAdding, setIsAdding] = useState(false);

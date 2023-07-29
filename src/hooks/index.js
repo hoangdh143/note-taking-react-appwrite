@@ -221,7 +221,7 @@ export const useGetNotes = (stale, categoryId) => {
   return [state];
 };
 
-export const useGetRemindNotes = (stale, categoryId) => {
+export const useGetRemindNotes = (stale) => {
   const reducer = (state, action) => {
     switch (action.type) {
       case FetchState.FETCH_INIT:
@@ -259,7 +259,7 @@ export const useGetRemindNotes = (stale, categoryId) => {
     const getNotes = async () => {
       dispatch({ type: FetchState.FETCH_INIT });
       try {
-        const data = await api.listRemindedDocuments(Server.databaseID, Server.collectionNotesID, categoryId, lastId);
+        const data = await api.listRemindedDocuments(Server.databaseID, Server.collectionNotesID, lastId);
         if (!didCancel && !lastId) {
           dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
         } else if (!didCancel && lastId) {
