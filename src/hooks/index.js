@@ -19,7 +19,8 @@ export const useGetCategories = (stale) => {
           ...state,
           isLoading: false,
           isError: false,
-          categories: action.payload
+          categories: action.payload,
+          total: action.total
         }
       case FetchState.FETCH_FAILURE:
         return { ...state, isLoading: false, isError: true };
@@ -32,6 +33,7 @@ export const useGetCategories = (stale) => {
     isLoading: false,
     isError: false,
     categories: [],
+    total: 0
   });
 
   useEffect(() => {
@@ -42,9 +44,9 @@ export const useGetCategories = (stale) => {
       try {
         const data = await api.listDocuments(Server.databaseID, Server.collectionCategoriesID);
         if (!didCancel && !lastId) {
-          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
+          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents, total: data.total });
         } else if (!didCancel && lastId) {
-          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents });
+          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents, total: data.total });
         }
       } catch (e) {
         if (!didCancel) {
@@ -175,6 +177,7 @@ export const useGetNotes = (stale, categoryId) => {
           isLoading: false,
           isError: false,
           notes: action.payload,
+          total: action.total
         };
       case FetchState.FETCH_ADDED:
         return {
@@ -194,6 +197,7 @@ export const useGetNotes = (stale, categoryId) => {
     isLoading: false,
     isError: false,
     notes: [],
+    total: 0,
   });
 
   useEffect(() => {
@@ -204,9 +208,9 @@ export const useGetNotes = (stale, categoryId) => {
       try {
         const data = await api.listDocumentsWithCategoryId(Server.databaseID, Server.collectionNotesID, categoryId, lastId);
         if (!didCancel && !lastId) {
-          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
+          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents, total: data.total });
         } else if (!didCancel && lastId) {
-          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents });
+          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents, total: data.total });
         }
       } catch (e) {
         if (!didCancel) {
@@ -232,6 +236,7 @@ export const useGetRemindNotes = (stale) => {
           isLoading: false,
           isError: false,
           notes: action.payload,
+          total: action.total
         };
       case FetchState.FETCH_ADDED:
         return {
@@ -251,6 +256,7 @@ export const useGetRemindNotes = (stale) => {
     isLoading: false,
     isError: false,
     notes: [],
+    total: 0
   });
 
   useEffect(() => {
@@ -261,9 +267,9 @@ export const useGetRemindNotes = (stale) => {
       try {
         const data = await api.listRemindedDocuments(Server.databaseID, Server.collectionNotesID, lastId);
         if (!didCancel && !lastId) {
-          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents });
+          dispatch({ type: FetchState.FETCH_SUCCESS, payload: data.documents, total: data.total });
         } else if (!didCancel && lastId) {
-          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents });
+          dispatch({ type: FetchState.FETCH_ADDED, payload: data.documents, total: data.total });
         }
       } catch (e) {
         if (!didCancel) {

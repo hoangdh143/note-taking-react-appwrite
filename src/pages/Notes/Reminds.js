@@ -21,13 +21,13 @@ const getNewRemind = (item) => {
 
 const Reminds = ({user, dispatch}) => {
     const [stale, setStale] = useState({stale: false});
-    const [{notes, isLoading, isError}] = useGetRemindNotes(stale);
+    const [{notes, total, isLoading, isError}] = useGetRemindNotes(stale);
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [searchedNotes, setSearchedNotes] = useState([]);
-    const [isAdding, setIsAdding] = useState(false);
+    const [isAdding, setIsAdding] = useState("");
 
     const handleDone = async (e, item) => {
-        setIsAdding(true);
+        setIsAdding(item.$id);
         e.preventDefault();
         const data = {
             remindDate: "",
@@ -38,15 +38,15 @@ const Reminds = ({user, dispatch}) => {
                 Permission.write(Role.user(user['$id'])),
             ]);
             setStale({ stale: true });
-            setIsAdding(false);
+            setIsAdding("");
         } catch (error) {
             console.error('Error in editing notes');
-            setIsAdding(false);
+            setIsAdding("");
         }
     };
 
     const handleAgain = async (e, item) => {
-        setIsAdding(true);
+        setIsAdding(item.$id);
         e.preventDefault();
         const { remindDate, remindCounted } = getNewRemind(item);
         const data = {
@@ -59,10 +59,10 @@ const Reminds = ({user, dispatch}) => {
                 Permission.write(Role.user(user['$id'])),
             ]);
             setStale({ stale: true });
-            setIsAdding(false);
+            setIsAdding("");
         } catch (error) {
             console.error('Error in editing notes');
-            setIsAdding(false);
+            setIsAdding("");
         }
     };
 
@@ -73,7 +73,7 @@ const Reminds = ({user, dispatch}) => {
     const onSearchHandle = async (searchTerm) => {
         try {
             setIsSearchLoading(true);
-            const data = await api.listDocumentsWithContent(Server.databaseID, Server.collectionNotesID, searchTerm, [
+            const data = await api.listRemindsWithContent(Server.databaseID, Server.collectionNotesID, searchTerm, [
                 Permission.read(Role.user(user['$id'])),
                 Permission.write(Role.user(user['$id'])),
             ]);
@@ -99,10 +99,13 @@ const Reminds = ({user, dispatch}) => {
             <section className="bg-gray-200 container h-screen max-h-screen px-3 max-w-xl mx-auto flex flex-col">
                 {isError && <Alert color="red" message="Something went wrong..."/>}
                 <div className="p-16 rounded-lg text-center">
+                    <div className="font-bold text-1xl md:text-2xl lg:text-3xl mb-2">
+                        📝 <br/> &nbsp; Reminds
+                    </div>
                     <Link to={"/categories"}>
-                        <div className="font-bold text-1xl md:text-2xl lg:text-3xl">
-                            📝 <br/> &nbsp; Reminds
-                        </div>
+                        <p className="text-sm text-indigo-500 font-semibold transition duration-75 ease-in-out transform hover:scale-125 hover:underline">
+                            Back to Categories
+                        </p>
                     </Link>
 
                     {isLoading && <h1> Loading .... </h1>}
@@ -112,8 +115,13 @@ const Reminds = ({user, dispatch}) => {
                     {searchedNotes.length > 0 && (
                         <ul>
                             {searchedNotes.map((item) => (
-                                <NotesItem key={item['$id']} item={item} setStale={setStale}/>
-                            ))}
+                                <div className='py-2 px-2 border border-gray-400 border-solid'>
+                                    <NotesItem key={item['$id']} item={item} setStale={setStale}/>
+                                    <div className='flex flex-col flex-grow mx-auto justify-center p-6 text-center'>
+                                        <button className='bg-white text-red-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleDone(e, item)}> {isAdding == item.$id ? "Loading..." : "Done"}</button>
+                                        <button className='bg-white text-green-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleAgain(e, item)}>{isAdding == item.$id ? "Loading..." : "Again"}</button>
+                                    </div>
+                                </div>                            ))}
                         </ul>
                     )}
                     {searchedNotes.length === 0 && (
@@ -122,23 +130,25 @@ const Reminds = ({user, dispatch}) => {
                                 <div className='py-2 px-2 border border-gray-400 border-solid'>
                                     <NotesItem key={item['$id']} item={item} setStale={setStale}/>
                                     <div className='flex flex-col flex-grow mx-auto justify-center p-6 text-center'>
-                                        <button className='bg-white text-red-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleDone(e, item)}> {isAdding ? "Loading..." : "Done"}</button>
-                                        <button className='bg-white text-green-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleAgain(e, item)}>{isAdding ? "Loading..." : "Again"}</button>
+                                        <button className='bg-white text-red-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleDone(e, item)}> {isAdding == item.$id ? "Loading..." : "Done"}</button>
+                                        <button className='bg-white text-green-500 font-bold my-2 py-2 px-4 rounded-lg' onClick={(e) => handleAgain(e, item)}>{isAdding == item.$id ? "Loading..." : "Again"}</button>
                                     </div>
                                 </div>
                             ))}
                         </ul>
                     )}
-                    <button
-                        className="w-full my-4 px-6 py-2 text-xl rounded-lg border-2 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md border-green-600 hover:bg-teal-700 text-gray-900"
-                        onClick={loadMoreHandler}
-                    >
-                        {isLoading ? "Loading ..." : "Load More"}
-                    </button>
+                    { notes.length < total &&
+                        <button
+                            className="w-full my-4 px-6 py-2 text-xl rounded-lg border-2 focus:ring-2 focus:ring-gray-800 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-110 hover:shadow-xl shadow-md border-green-600 hover:bg-teal-700 text-gray-900"
+                            onClick={loadMoreHandler}
+                        >
+                            {isLoading ? "Loading ..." : "Load More"}
+                        </button>
+                    }
                 </div>
             </section>
 
-            <section className="absolute bottom-0 right-0 py-3 px-6 mr-8 mb-8">
+            <section className="fixed bottom-0 right-0 py-3 px-6 mr-8 mb-8">
                 <button
                     onClick={handleLogout}
                     className="mx-auto mt-4 py-3 px-12 font-semibold text-md rounded-lg shadow-md bg-white text-gray-900 border border-gray-900 hover:border-transparent hover:text-white hover:bg-gray-900 focus:outline-none"

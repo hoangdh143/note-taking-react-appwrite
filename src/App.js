@@ -36,7 +36,7 @@ function App() {
                         {user ? <Redirect to="/categories"/> : <Login dispatch={dispatch}/>}
                     </Route>
                     <Route exact path="/">
-                        <Landing/>
+                        <Redirect to="/categories"/>
                     </Route>
                     <Redirect to="/"/>
                 </Switch>

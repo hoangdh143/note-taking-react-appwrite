@@ -59,6 +59,14 @@ let api = {
     ]);
   },
 
+  listRemindsWithContent: (databaseId, collectionId, searchTerm) => {
+    const today = formatDateToMMDDYYYY(TODAY);
+    return api.provider().database.listDocuments(databaseId, collectionId, [
+      Query.equal("remindDate", today),
+      Query.search("content", searchTerm),
+    ]);
+  },
+
   listDocumentsWithName: (databaseId, collectionId, searchTerm) => {
     return api.provider().database.listDocuments(databaseId, collectionId, [
       Query.search("name", searchTerm),
